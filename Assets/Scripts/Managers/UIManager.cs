@@ -22,7 +22,6 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI inGameLevelText;
     [SerializeField] private TextMeshProUGUI winGameLevelText;    
     [SerializeField] private TextMeshProUGUI coinText;
-    [SerializeField] private TextMeshProUGUI earnedCoinText;
 
     [Header("Rectransform References")]
     [SerializeField] private RectTransform coinIconPrefab;
@@ -81,7 +80,6 @@ public class UIManager : MonoBehaviour
                 Destroy((current.gameObject));
                 currentCoinCount += 10;
                 earnedCoinCount += 10;
-                earnedCoinText.text = $"YOU EARNED {earnedCoinCount} COINS";
                 coinText.text = currentCoinCount.ToString();
             }
         );

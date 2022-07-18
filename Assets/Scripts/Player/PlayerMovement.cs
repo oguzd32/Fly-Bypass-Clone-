@@ -1,28 +1,34 @@
+using System.Timers;
 using UnityEngine;
 using DG.Tweening;
-using UnityEngine.Serialization;
+using Unity.Mathematics;
 
 public class PlayerMovement : MonoBehaviour
 {
-    [SerializeField] private float forwardSpeed = 10f;
-    [SerializeField] private float extraSpeed = 3;
-    [SerializeField] private float horizontalSpeed = 3f;
-    [SerializeField] private float clampX = 1.7f;
-    [SerializeField] private GameObject windParticle;
-
-    // cached components
-    private CharacterController cc;
+    [SerializeField] private float maxForwardSpeed = 10f;
+    [SerializeField] private float rotateSpeed = 10;
+    [SerializeField] private float accelerateSpeed = 10;
+    [SerializeField] private float rotationAmount = 45;
     
+    // cached components
+    private Rigidbody m_Rigidbody;
+    private PlayerController controller;
+
     // private variables
     private bool isStarted = false;
+    private bool isTouchGround = true;
     private float _ForwardSpeed;
 
+    private float flyTimer = 0;
+    
     private Vector3 speed;
     
     void Start()
     {
-        cc = GetComponent<CharacterController>();
-        _ForwardSpeed = forwardSpeed;
+        m_Rigidbody = GetComponent<Rigidbody>();
+        controller = GetComponent<PlayerController>();
+
+        _ForwardSpeed = maxForwardSpeed;
     }
 
     internal void StartGame()
@@ -34,41 +40,34 @@ public class PlayerMovement : MonoBehaviour
     void Update()
     {
         if(!isStarted) return;
+
+        Rotate(TouchInput.SwerveDeltaX * 0.05f, rotateSpeed);
+
+        if (isTouchGround)
+        {
+            _ForwardSpeed = Mathf.Clamp( _ForwardSpeed + Time.deltaTime * accelerateSpeed, 0, maxForwardSpeed);
+        }
+        else
+        {
+            if (Input.GetMouseButtonDown(0) && controller.WingCount > 0)
+            {
+                Debug.Log("fly");
+            }
+            else
+            {
+                transform.position += Vector3.down * Time.deltaTime;
+            }
+        }
         
-        speed.x = TouchInput.SwerveDeltaX * 0.05f * horizontalSpeed;
-        speed.z = _ForwardSpeed;
-        cc.SimpleMove(speed);
-        
-        Clamp();
+        transform.position += transform.forward * Time.deltaTime * _ForwardSpeed;
     }
 
-    private void Clamp()
+    private void Rotate(float direction, float speed)
     {
-        Vector3 tempPos = transform.position;
-
-        tempPos.x = Mathf.Clamp(tempPos.x, -clampX, clampX);
-
-        transform.position = tempPos;
-    }
-
-    public void IncreaseSpeed()
-    {
-        _ForwardSpeed += extraSpeed;
-        float totalSpeed = _ForwardSpeed + extraSpeed;
-
-        Sequence sequence = DOTween.Sequence();
-
-        sequence.AppendCallback(() => windParticle.SetActive(true));
-        sequence.AppendCallback(() => DOTween.To(() => _ForwardSpeed,
-            x => _ForwardSpeed
-                = x, totalSpeed,
-            1));
-
-        sequence.AppendInterval(5f);
-        sequence.AppendCallback(() => windParticle.SetActive(false));
-        sequence.AppendCallback(() => DOTween.To(() => _ForwardSpeed,
-            x => _ForwardSpeed
-                = x, forwardSpeed,
-            1));
+        transform.Rotate(Vector3.up, direction * Time.deltaTime * speed);
+        float yRot = transform.eulerAngles.y;
+        if (yRot > 180f) yRot -= 360f;
+        yRot = Mathf.Clamp(yRot, -rotationAmount, rotationAmount);
+        transform.rotation = Quaternion.Euler(transform.eulerAngles.x, yRot, transform.eulerAngles.z);
     }
 }

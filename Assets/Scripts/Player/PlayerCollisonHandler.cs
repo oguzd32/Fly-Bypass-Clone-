@@ -1,5 +1,7 @@
+using System;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.Events;
 using static Utilities;
 
 public class PlayerCollisonHandler : MonoBehaviour
@@ -29,9 +31,35 @@ public class PlayerCollisonHandler : MonoBehaviour
         {
             case "Finish":
 
+                
+                break;
+
+            case "Wing":
+
+                if (otherObj.TryGetComponent(out Wing wing))
+                {
+                    Debug.Log("collect");
+                    controller.WingCount += 3;
+                    wing.Collect();
+                }
+                
+                break;;
+        }
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        GameObject otherObj = collision.gameObject;
+
+        switch (otherObj.tag)
+        {
+            case "Score":
+
+                movement.enabled = false;
+                controller.isFinish = true;
+                controller.SetVictoryAnim();
                 GameManager.Instance.EndGame(true);
                 break;
-            
         }
     }
 }
