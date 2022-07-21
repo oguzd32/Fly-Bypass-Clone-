@@ -1,25 +1,22 @@
-using System;
-using DG.Tweening;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Events;
-using static Utilities;
 
-public class PlayerCollisonHandler : MonoBehaviour
+public class EnemyCollisonHandler : MonoBehaviour
 {
     // cached components
-    private PlayerController controller;
-    private PlayerMovement movement;
+    private EnemyController controller;
+    private EnemyMovement movement;
 
     // private variables
     private GameObject lastTriggeredObj = default;
-    private int place = 0;
     
     private void Start()
     {
-        controller = GetComponent<PlayerController>();
-        movement = GetComponent<PlayerMovement>();
+        controller = GetComponent<EnemyController>();
+        movement = GetComponent<EnemyMovement>();
     }
-
+    
     private void OnTriggerEnter(Collider other)
     {
         GameObject otherObj = other.gameObject;
@@ -31,12 +28,9 @@ public class PlayerCollisonHandler : MonoBehaviour
         switch (otherObj.tag)
         {
             case "Finish":
-
-                _GameManager.placeCounter++;
-                place = _GameManager.placeCounter;
-                movement.inFinal = true;
+                GameManager.Instance.placeCounter++;
                 break;
-
+            
             case "Wing":
 
                 if (otherObj.TryGetComponent(out Wing wing))
@@ -48,36 +42,18 @@ public class PlayerCollisonHandler : MonoBehaviour
                 break;;
         }
     }
-
+    
     private void OnCollisionEnter(Collision collision)
     {
         GameObject otherObj = collision.gameObject;
 
         switch (otherObj.tag)
         {
-            case "Ground":
-
-                if (transform.position.y < 0)
-                {
-                    movement.SetMaxForwardSpeed(0);
-                }
-                break;;
-            
             case "Score":
-
-                if(controller.isFinish) return;
 
                 movement.enabled = false;
                 controller.isFinish = true;
                 controller.SetVictoryAnim();
-                UIManager.Instance.SetPlaceText(place);
-
-                if (otherObj.transform.parent.TryGetComponent(out Score score))
-                {
-                    StartCoroutine(UIManager.Instance.SpawnCoin(transform.position, score.scoreAmount));
-                }
-
-                GameManager.Instance.EndGame(true);
                 break;
         }
     }

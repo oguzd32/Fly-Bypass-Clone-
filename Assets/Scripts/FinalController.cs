@@ -15,6 +15,7 @@ public class FinalController : MonoBehaviour
         for (int i = 0; i < scoreCubeLenght; i++)
         {
             Score scoreInstance = Instantiate(scorePrefab, transform);
+            scoreInstance.scoreAmount = i + 1;
             scoreInstance.gameObject.name = $"{i + 1}X";
             scoreInstance.transform.localPosition = new Vector3(0, 0, 1 + (i * cubeOffSet));
             scoreInstance.SetCube(i + 1, scoreColor.Evaluate((float)i / scoreCubeLenght));

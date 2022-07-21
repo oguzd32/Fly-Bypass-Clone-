@@ -1,51 +1,41 @@
-using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
-using  DG.Tweening;
-using TMPro;
-using static Utilities;
+using DG.Tweening;
 
-public class PlayerController : MonoBehaviour
+public class EnemyController : MonoBehaviour
 {
     [SerializeField] private Animator characterAnimator;
+    [SerializeField] private Renderer characterRenderer;
     [SerializeField] private LayerMask layerMask;
     [SerializeField] private Transform wing;
-    [SerializeField] private GameObject windParticle;
-    [SerializeField] private TextMeshPro wingCountText;
+    
     public float WingCount
     {
         get => wingCount;
-        set
-        {
-            wingCount = value;
-            wingCountText.text = ((int) wingCount).ToString();
-            if (wingCount > 0)
-            {
-                wing.gameObject.SetActive(true);
-                Vector3 tempScale = wing.localScale;
-                tempScale.x = .4f;
-                wing.localScale = tempScale;
-            }
-        }
+        set => wingCount = value;
     }
 
     public bool isFinish { get; set; } = false;
     
     // cached components
-    private PlayerMovement movement;
+    private EnemyMovement movement;
     private Rigidbody m_Rigidbody;
 
     // private variables
     private float wingCount = 0;
-    
+    private float rotateAmount = 2f;
     private bool isFly = false;
     private bool isFailed = false;
+
+    public void SetColor(Color color) => characterRenderer.materials[1].color = color; 
     
     private void Start()
     {
-        movement = GetComponent<PlayerMovement>();
+        movement = GetComponent<EnemyMovement>();
         m_Rigidbody = GetComponent<Rigidbody>();
         
-        WingCount = 0;
+        wingCount = 4;
     }
 
     internal void StartGame()
@@ -53,34 +43,41 @@ public class PlayerController : MonoBehaviour
         movement.StartGame();
         characterAnimator.SetBool("isStarted", true);
     }
-
+    
     private void Update()
     {
         if(isFinish || isFailed) return;
-        SetFlyAnimation(!IsGrounded());
-        _GameReferenceHolder.cameraFollow.ChangeFov(!IsGrounded());
 
-        if(transform.position.y < -5) FailProcess();
-        
-        if (Input.GetMouseButton(0) && WingCount > 0 && isFly)
+        if (transform.position.x == 2.7f)
         {
-            FlyProcess();
+            movement.rotateDir += Random.Range(-rotateAmount, 0f);
+        }
+        else if (transform.position.x == -2.7f)
+        {
+            movement.rotateDir += Random.Range(0f, rotateAmount);
         }
         else
         {
-            movement.SetMaxForwardSpeed(10);
+            movement.rotateDir += Random.Range(-rotateAmount, rotateAmount);
+        }
+        
+        
+        SetFlyAnimation(!IsGrounded());
+
+        if(transform.position.y < -5) FailProcess();
+        
+        if (WingCount > 0 && isFly)
+        {
+            FlyProcess();
         }
     }
 
     private void FlyProcess()
     {
-        movement.SetMaxForwardSpeed(12);
-        
         WingCount = Mathf.Max(0, WingCount - Time.deltaTime * 5);
 
         Vector3 tempWingScale = wing.transform.localScale;
-        tempWingScale.x = (WingCount / 5);
-        wing.gameObject.SetActive(tempWingScale.x > 0);
+        tempWingScale.x = 1 + (WingCount / 5);
         wing.transform.localScale = tempWingScale;
 
         if (m_Rigidbody.velocity.y < 0)
@@ -95,8 +92,6 @@ public class PlayerController : MonoBehaviour
     {
         isFailed = true;
         movement.enabled = false;
-        _GameReferenceHolder.cameraFollow.SetTarget(null, Vector3.zero);
-        _GameManager.EndGame(false);
     }
 
     private bool IsGrounded()
@@ -107,27 +102,19 @@ public class PlayerController : MonoBehaviour
         {
             Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.down) * hit.distance, Color.green);
             isFly = false;
-            windParticle.SetActive(false);
-            //wing.gameObject.SetActive(false);
-            wing.DOScaleX(.4f, .5f);
+            wing.gameObject.SetActive(false);
             return true;
         }
         else
         {
             Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.down) * 1000, Color.red);
-            //wing.gameObject.SetActive(true);
-            wing.DOKill();
-            windParticle.SetActive(true);
+            wing.gameObject.SetActive(true);
             return false;
         }
     }
-
-    public void SetVictoryAnim()
-    {
-        characterAnimator.SetTrigger("Finish");
-        windParticle.SetActive(false);
-    } 
-
+    
+    public void SetVictoryAnim() => characterAnimator.SetTrigger("Finish");
+    
     public void SetFlyAnimation(bool value)
     {
         characterAnimator.SetBool("OnGround", !value);

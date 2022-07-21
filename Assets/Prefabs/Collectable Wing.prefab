@@ -108,5 +108,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1030373a067fb4895ab409b41cd74af2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  respawnDelay: 2
+  respawnDelay: 0.5
   m_Collider: {fileID: 7228532152295917037}

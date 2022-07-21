@@ -6,6 +6,9 @@ public class CameraFollow : MonoBehaviour
     [SerializeField] private float smoothTime = 0.2f;
     [SerializeField] private bool followOnX = false;
     
+    // cached components
+    private Camera mainCamera;
+    
     // private variables
     private Transform target = default;
 
@@ -17,6 +20,7 @@ public class CameraFollow : MonoBehaviour
     {
         target = GameReferenceHolder.Instance.playerController.transform;
         offSet = transform.position - target.position;
+        mainCamera = GetComponent<Camera>();
     }
 
     private void LateUpdate()
@@ -34,8 +38,29 @@ public class CameraFollow : MonoBehaviour
         transform.position = targetPosition;
     }
 
-    public void Shake(float duration)
+    public void SetTarget(Transform target, Vector3 offSet)
     {
-        transform.DOShakeRotation(duration, 2, 1);
+        this.target = target;
+        this.offSet = offSet;
+    }
+
+    public void ChangeFov(bool isFly)
+    {
+        transform.DOKill();
+        
+        if (isFly)
+        {
+            DOTween.To(() => mainCamera.fieldOfView,
+                x => mainCamera.fieldOfView
+                    = x, 75,
+                1);
+        }
+        else
+        {
+            DOTween.To(() => mainCamera.fieldOfView,
+                x => mainCamera.fieldOfView
+                    = x, 65,
+                1);
+        }
     }
 }

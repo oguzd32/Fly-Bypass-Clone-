@@ -105,9 +105,10 @@ GameObject:
   m_Component:
   - component: {fileID: 570866399103078025}
   - component: {fileID: 3791850692390217684}
+  - component: {fileID: 2132255768}
   m_Layer: 0
   m_Name: Finish
-  m_TagString: Untagged
+  m_TagString: Finish
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -140,7 +141,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   scorePrefab: {fileID: 2189616277038054745, guid: bcb4de3042dbc4f2e82c3437bf6f12b2, type: 3}
-  scoreCubeLenght: 10
+  scoreCubeLenght: 100
   cubeOffSet: 1.5
   scoreColor:
     serializedVersion: 2
@@ -171,3 +172,16 @@ MonoBehaviour:
     m_Mode: 0
     m_NumColorKeys: 5
     m_NumAlphaKeys: 2
+--- !u!65 &2132255768
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5802895973014514617}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 30, y: 10, z: 1}
+  m_Center: {x: 0, y: 5, z: 0.5}

@@ -22,19 +22,16 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI inGameLevelText;
     [SerializeField] private TextMeshProUGUI winGameLevelText;    
     [SerializeField] private TextMeshProUGUI coinText;
+    [SerializeField] private TextMeshProUGUI placeText;
 
     [Header("Rectransform References")]
     [SerializeField] private RectTransform coinIconPrefab;
     [SerializeField] private RectTransform coinIcon;
-
-    [Space] 
-    [SerializeField] private Image powerUpButton;
-
+    
     // private variables
     private int currentLevel = 0;
     private int currentCoinCount = 0;
-    private int earnedCoinCount = 0;
-    
+
     private void Awake()
     {
         Instance = this;
@@ -49,10 +46,13 @@ public class UIManager : MonoBehaviour
         coinText.text = currentCoinCount.ToString();
     }
 
+    internal void SetPlaceText(int placeNumber)
+    {
+        placeText.text = $"YOU ARE IN {placeNumber} PLACE";
+    }
+    
     internal IEnumerator SpawnCoin(Vector3 worldPos, int amount)
     {
-        Sequence sequence = DOTween.Sequence();
-        
         for (int i = 0; i < amount; i++)
         {
             yield return new WaitForEndOfFrame();
@@ -78,8 +78,7 @@ public class UIManager : MonoBehaviour
         current.DOMove(coinIcon.position, 0.9f).OnComplete(() =>
             {
                 Destroy((current.gameObject));
-                currentCoinCount += 10;
-                earnedCoinCount += 10;
+                currentCoinCount += 1;
                 coinText.text = currentCoinCount.ToString();
             }
         );

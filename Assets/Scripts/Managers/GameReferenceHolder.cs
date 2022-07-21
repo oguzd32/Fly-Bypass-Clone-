@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using UnityEngine;
 
 public static class Utilities
@@ -18,6 +19,10 @@ public class GameReferenceHolder : MonoBehaviour
     [Header("Script References")] 
     public PlayerController playerController;
     public CameraFollow cameraFollow;
+    public EnemyController[] enemies;
+
+    [Space] 
+    public Color[] enemyColors;
     
     private void Awake()
     {
